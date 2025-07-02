@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <style>
+        .interacting {
+            border: 1px solid #f0ad4e !important;
+            background-color: lightyellow !important;
+        }
+
+        .interacted {
+            border: 1px solid green !important;
+            background-color: lightgreen !important;
+        }
+
+        @keyframes flickerAnimation {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+
+        .recFrame {
+            pointer-events: none;
+            border: 5px solid #999;
+            width: 80px;
+            height: 80px;
+            position: fixed;
+            z-index: 222;
+            opacity: 0;
+        }
+
+        .recording {
+            -webkit-animation: flickerAnimation 1s infinite;
+        }
+
+        .recFrame.tr {
+            top: 20px;
+            right: 20px;
+            border-bottom: none;
+            border-left: none;
+        }
+
+        .recFrame.tl {
+            top: 20px;
+            left: 20px;
+            border-bottom: none;
+            border-right: none;
+        }
+
+        .recFrame.br {
+            bottom: 20px;
+            right: 20px;
+            border-top: none;
+            border-left: none;
+        }
+
+        .recFrame.bl {
+            bottom: 20px;
+            left: 20px;
+            border-top: none;
+            border-right: none;
+        }
+
+        .recControls {
+            position: fixed;
+            z-index: 222;
+            background: #ccc;
+            padding: 10px;
+            top: 30px;
+            right: 30px;
+            height: 26px;
+            width: 200px;
+        }
+
+            .recControls span {
+                display: block;
+                line-height: 24px;
+                float: left;
+                margin-right: 10px;
+            }
+
+            .recControls .icon {
+                background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAQAAAD41aSMAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAlwSFlzAAALEwAACxMBAJqcGAAAATBJREFUeNrt1GEKABAMgFGTKzs/Z5C0rPf917IXMZsy61YAAIAAABAAAAIAQAAACAAAAQAgAAAEAIAAABAAAAIAQAAACAAAAQAgAAAEAIAAABAAADpvPJ+wLs/H5/O9AF+QAAAQAAACAEAAAAgAAAEAIAAAAFgBAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAAIAAABACAAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAAAhAhcbzCZF8w/ACBACAAAAQAAACAEAAAAgAAAEAAMAKAAAQAAACAEAAAAgAAAEAIAAABACAAAAQAAACAEAAyrUBe28D+/DKukEAAAAASUVORK5CYII=);
+                background-repeat: no-repeat;
+                background-size: 24px 24px;
+                width: 24px;
+                height: 24px;
+            }
+
+                .recControls .icon.active {
+                    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAKT2lDQ1BQaG90b3Nob3AgSUNDIHByb2ZpbGUAAHjanVNnVFPpFj333vRCS4iAlEtvUhUIIFJCi4AUkSYqIQkQSoghodkVUcERRUUEG8igiAOOjoCMFVEsDIoK2AfkIaKOg6OIisr74Xuja9a89+bN/rXXPues852zzwfACAyWSDNRNYAMqUIeEeCDx8TG4eQuQIEKJHAAEAizZCFz/SMBAPh+PDwrIsAHvgABeNMLCADATZvAMByH/w/qQplcAYCEAcB0kThLCIAUAEB6jkKmAEBGAYCdmCZTAKAEAGDLY2LjAFAtAGAnf+bTAICd+Jl7AQBblCEVAaCRACATZYhEAGg7AKzPVopFAFgwABRmS8Q5ANgtADBJV2ZIALC3AMDOEAuyAAgMADBRiIUpAAR7AGDIIyN4AISZABRG8lc88SuuEOcqAAB4mbI8uSQ5RYFbCC1xB1dXLh4ozkkXKxQ2YQJhmkAuwnmZGTKBNA/g88wAAKCRFRHgg/P9eM4Ors7ONo62Dl8t6r8G/yJiYuP+5c+rcEAAAOF0ftH+LC+zGoA7BoBt/qIl7gRoXgugdfeLZrIPQLUAoOnaV/Nw+H48PEWhkLnZ2eXk5NhKxEJbYcpXff5nwl/AV/1s+X48/Pf14L7iJIEyXYFHBPjgwsz0TKUcz5IJhGLc5o9H/LcL//wd0yLESWK5WCoU41EScY5EmozzMqUiiUKSKcUl0v9k4t8s+wM+3zUAsGo+AXuRLahdYwP2SycQWHTA4vcAAPK7b8HUKAgDgGiD4c93/+8//UegJQCAZkmScQAAXkQkLlTKsz/HCAAARKCBKrBBG/TBGCzABhzBBdzBC/xgNoRCJMTCQhBCCmSAHHJgKayCQiiGzbAdKmAv1EAdNMBRaIaTcA4uwlW4Dj1wD/phCJ7BKLyBCQRByAgTYSHaiAFiilgjjggXmYX4IcFIBBKLJCDJiBRRIkuRNUgxUopUIFVIHfI9cgI5h1xGupE7yAAygvyGvEcxlIGyUT3UDLVDuag3GoRGogvQZHQxmo8WoJvQcrQaPYw2oefQq2gP2o8+Q8cwwOgYBzPEbDAuxsNCsTgsCZNjy7EirAyrxhqwVqwDu4n1Y8+xdwQSgUXACTYEd0IgYR5BSFhMWE7YSKggHCQ0EdoJNwkDhFHCJyKTqEu0JroR+cQYYjIxh1hILCPWEo8TLxB7iEPENyQSiUMyJ7mQAkmxpFTSEtJG0m5SI+ksqZs0SBojk8naZGuyBzmULCAryIXkneTD5DPkG+Qh8lsKnWJAcaT4U+IoUspqShnlEOU05QZlmDJBVaOaUt2ooVQRNY9aQq2htlKvUYeoEzR1mjnNgxZJS6WtopXTGmgXaPdpr+h0uhHdlR5Ol9BX0svpR+iX6AP0dwwNhhWDx4hnKBmbGAcYZxl3GK+YTKYZ04sZx1QwNzHrmOeZD5lvVVgqtip8FZHKCpVKlSaVGyovVKmqpqreqgtV81XLVI+pXlN9rkZVM1PjqQnUlqtVqp1Q61MbU2epO6iHqmeob1Q/pH5Z/YkGWcNMw09DpFGgsV/jvMYgC2MZs3gsIWsNq4Z1gTXEJrHN2Xx2KruY/R27iz2qqaE5QzNKM1ezUvOUZj8H45hx+Jx0TgnnKKeX836K3hTvKeIpG6Y0TLkxZVxrqpaXllirSKtRq0frvTau7aedpr1Fu1n7gQ5Bx0onXCdHZ4/OBZ3nU9lT3acKpxZNPTr1ri6qa6UbobtEd79up+6Ynr5egJ5Mb6feeb3n+hx9L/1U/W36p/VHDFgGswwkBtsMzhg8xTVxbzwdL8fb8VFDXcNAQ6VhlWGX4YSRudE8o9VGjUYPjGnGXOMk423GbcajJgYmISZLTepN7ppSTbmmKaY7TDtMx83MzaLN1pk1mz0x1zLnm+eb15vft2BaeFostqi2uGVJsuRaplnutrxuhVo5WaVYVVpds0atna0l1rutu6cRp7lOk06rntZnw7Dxtsm2qbcZsOXYBtuutm22fWFnYhdnt8Wuw+6TvZN9un2N/T0HDYfZDqsdWh1+c7RyFDpWOt6azpzuP33F9JbpL2dYzxDP2DPjthPLKcRpnVOb00dnF2e5c4PziIuJS4LLLpc+Lpsbxt3IveRKdPVxXeF60vWdm7Obwu2o26/uNu5p7ofcn8w0nymeWTNz0MPIQ+BR5dE/C5+VMGvfrH5PQ0+BZ7XnIy9jL5FXrdewt6V3qvdh7xc+9j5yn+M+4zw33jLeWV/MN8C3yLfLT8Nvnl+F30N/I/9k/3r/0QCngCUBZwOJgUGBWwL7+Hp8Ib+OPzrbZfay2e1BjKC5QRVBj4KtguXBrSFoyOyQrSH355jOkc5pDoVQfujW0Adh5mGLw34MJ4WHhVeGP45wiFga0TGXNXfR3ENz30T6RJZE3ptnMU85ry1KNSo+qi5qPNo3ujS6P8YuZlnM1VidWElsSxw5LiquNm5svt/87fOH4p3iC+N7F5gvyF1weaHOwvSFpxapLhIsOpZATIhOOJTwQRAqqBaMJfITdyWOCnnCHcJnIi/RNtGI2ENcKh5O8kgqTXqS7JG8NXkkxTOlLOW5hCepkLxMDUzdmzqeFpp2IG0yPTq9MYOSkZBxQqohTZO2Z+pn5mZ2y6xlhbL+xW6Lty8elQfJa7OQrAVZLQq2QqboVFoo1yoHsmdlV2a/zYnKOZarnivN7cyzytuQN5zvn//tEsIS4ZK2pYZLVy0dWOa9rGo5sjxxedsK4xUFK4ZWBqw8uIq2Km3VT6vtV5eufr0mek1rgV7ByoLBtQFr6wtVCuWFfevc1+1dT1gvWd+1YfqGnRs+FYmKrhTbF5cVf9go3HjlG4dvyr+Z3JS0qavEuWTPZtJm6ebeLZ5bDpaql+aXDm4N2dq0Dd9WtO319kXbL5fNKNu7g7ZDuaO/PLi8ZafJzs07P1SkVPRU+lQ27tLdtWHX+G7R7ht7vPY07NXbW7z3/T7JvttVAVVN1WbVZftJ+7P3P66Jqun4lvttXa1ObXHtxwPSA/0HIw6217nU1R3SPVRSj9Yr60cOxx++/p3vdy0NNg1VjZzG4iNwRHnk6fcJ3/ceDTradox7rOEH0x92HWcdL2pCmvKaRptTmvtbYlu6T8w+0dbq3nr8R9sfD5w0PFl5SvNUyWna6YLTk2fyz4ydlZ19fi753GDborZ752PO32oPb++6EHTh0kX/i+c7vDvOXPK4dPKy2+UTV7hXmq86X23qdOo8/pPTT8e7nLuarrlca7nuer21e2b36RueN87d9L158Rb/1tWeOT3dvfN6b/fF9/XfFt1+cif9zsu72Xcn7q28T7xf9EDtQdlD3YfVP1v+3Njv3H9qwHeg89HcR/cGhYPP/pH1jw9DBY+Zj8uGDYbrnjg+OTniP3L96fynQ89kzyaeF/6i/suuFxYvfvjV69fO0ZjRoZfyl5O/bXyl/erA6xmv28bCxh6+yXgzMV70VvvtwXfcdx3vo98PT+R8IH8o/2j5sfVT0Kf7kxmTk/8EA5jz/GMzLdsAAAAgY0hSTQAAeiUAAICDAAD5/wAAgOkAAHUwAADqYAAAOpgAABdvkl/FRgAAC1BJREFUeNrsXdFR48oSPVICq1sOAG0V/2siwESAUQLgCDARABHYRIA3ATARrIgA7b+rVg7A9bQZvA+1FmGw1d0zkiV7+se39mJ51OdM9+mekcbDntnT0XEIIAQwAPANQJ/+Vx9AwLxMBiCh/04A/AUQA0ij5SLdJ395ewD4gMA+FYKstYIcrwDiaLmIHQGan+FDAOcEfBssBvACYN61COF1DPTLUkhvqyUAfnaFDF7LgS9AH3Y0ws4B/IyWi7kjAB/0AMCYgA/3RGulFBWm0XKROQJsB/66ASG3K8sAPLSJCJ4D/rCJ4O0Y/CGASYOhPiHnb7OgQaGZArjZpUbwdgR8COCxpjIuJaB/F4Bra3XqMRSE+EGfdZA1BjDaRdXg7QD8OwC3lgGP8d6YSRsg7wB542lgmRD30XJxt5cEIMc9WwqvaanESnacxvqlUtUGGRIAF01FA68hJ11RrjcVeTMCPUYLjVLGJYArCyLxJlouZp0nwNPR8YRU/t6UTg1WNrNouRh1kgDkhF8GIT+lnDhDh81C9EsAnNVFfq+mm+5Tvg8PYcY3EBFS0gVJ6wlA4P9S3uiMct9eAL+BCBOlRsgoEiStJYAB+CnVwTEOwEgsPioipHUS+JZz3ZsC/CmAk0MBHwDoXk/o3iUWAHgjX7cnAhCjfynYPGrzUmlD0WBI0UA6cU5sRALPwg1own6jzY4OkCCEvElmJR14OwC/9tq2bKt8jAHe1x1OK77ySp8xgKzXUKdRKRCNSeAZDvhNKGRq73WvPm4SHVi6bEzEiHs1axXFWklK6SBrmgBvwpA1qqups8rz6DnyfnxQ82TNkK9DvPRq0i8k8h4lKTVaLk4aI8DT0fGjMFRZB3+V581rGkfdoG8jwwzAQ8+ynlGQQJVavQYGZhV8Av4W5gsutm0G4N4mEZrwtSccUCis9a2B32LgayWCkAQZ6QH2b0sbQc8C8O8tgn9HxGs7+KAxvtGYjY18eM/884Awsh8BhOrUSqlHJdwj2v8wyLZ+x8hGKSnUXexqy2f+eCgAPwFwYwH8Mc36roIPGvsb3Yup3eD9gdUquyXMrKUASQ66MFnNWx0dB6uc7RPsj01WR8ePq7x3ok0FGYALVO9qFmHmM2b/UNBQMdrZunrfRHKF/bMrAL8MSZAC4KbWAWGnJ0CpPcmxqcnCDuX7Px0P+ZyU8IfuVUuCOfiriJOnCsJVRYAxeK3eVKBUN4Gv3UTSNQsoEpgQ/Z58XmUhKvZjehWz/w8TlDPtev6Bgb+ul860FYJgCT4D8H2TLvMrZj8HlJkB+MGBgl+OBKp7J5/PmL8zFqUAmv3XTHbdOPB3QwLyPacquN6kBfwtipUzqAeDkm+y54JPIgwnyiiQId9BzSHalYQAnNmfQr6nrZj94z0t9dQlokGzaMqNAiwCUO3IUf73mtlPom/iMP8cETWVAWHAScPhV32BryLAJSf3Gyz0PDqs7fqGsOBMxsutBCi9jasy9ytD/53L+9v1gMEqIgeT4foawXoEGDJ/bKoAP2Rqi0O36xVzIUeJyXAbATjhf6ZU/rcHXvJJSkPxCzQIE05avvySABQaOOH5p3L2O9Uvqwo0UYCDTb+cBnxh+E+VXb9bh2n9PiNsUkkaKBPgnPHFuZv9rY8CHIzOvyLAoI7w74SfmSCsKQ0MPhCAVpY44T/RMNnhqI8CijSQcNJAgbkvmP3i3E9P7Djlb1ARrBi7epRYfSDAKeMLr4qBnDsMjU3jQw5Wp2UC9OuIAOjua97bZHVFgD4A+FQTVoVp8Vk5q/fXrDozTwMDyRcIqyq8gqej49AHb+VPI/4GDjtrpvElB7PQZ178t2IApw43a6bxJQezgY/8aDUXAQ4zAnzzmQIwE+b/vsPMril8ysGsz3o0TNH/d+KvBjEoFIIszLgRwIX/bqYBVgSoYlbifN9Zq8Iu4KSATPHDrgJoRyVQiZ3v/HrY5gjgCODMEcCZI4AzRwBnjgDOHAE+W6C47qtzrXXT+DTgECCr+Ju+831nrQq7zEc9rd7Y+b4TPk24bwodCC+cObysm8inXMy4EUCkA3o7PtB5H03h04AbAf5ayCUuDbQv/HMw++szL/7DVQKdqwA4mMU+eE+TugiwnxEg9Ugw/I+RM74rng3gXNdZhfjrLRf/CQVgiPwtr1uvGy0X/xVVAEdgDBSDnzv8jE3jQw5WSVEFcHOMZkfKi8PP2DQ+ZD/r6QtyjDgC0Ll6ridgFv7rigDxPwIwtxCHT7r9/jOHo9rEviOMwqq/KzD3hUrzUnETDw5HtWl8d8md/esE4OSaoSINpC4K6Ga/8uxBDkYvXxGAk2tCxboAYHCayAGb2GeETcj40/knAlCNzykHL10UaO3s52CTlPs566uBnDdMXT3pDji4dxUBT/krZ38A3kulPmDsK5sOY2UUcIKQIfyUs5+LyQeMvS+Y9MwQElkkbE8Wtjo67vppoHVa0lsuTpSzn3PA1zxaLi62RQBuGgjoVGuNjRzO1n0zBG/N5RO23gZG/WGoyRT5UeWZIgqM4U4NWbeb3nIxrXH2p9Fy8X39H30uU74qCTVagPTA1FUFn1T/VPndMXP2f6m/NhFgCsPjyDiMh3v3AGBw2rrweL8ZmwDC48gmyiiQATgDb0PKPpd8Zz2zo/dYs19zcig3Clwpu4MFCSRHojvw32f/gFn3Z9hynMxGAgiiAAA8alMB7XY9OzASFOAnSvAD8E8Y23q4Z9VzAVPwT6lWnwpSIkHqwGfZLfinum8Vlx6DbUMAz8yBXUS6DQxFeRggP0+4v8eCzyTnW8ej8skgukAsSAWhQSQohOE+logzC+CHgtAfcyYj9/FwbocqELBzIwl6y8VIWxq11G56y8XIEPzCt4FNzLhvCk3BX6HqPx0dGx8PS42Rk473ChIAJwZNnvWSj5sa77lb+D0hC9+Eg7iz4UU6TvUa3XnGIEO+qmfl/p/y++eK7CQSLChJ3xAiqdlvDRaM1qPBHUWDLmiDGc16W+BfCcAv+ips85QDkoT4kcFJ419Fg6LkvGoh8PfKtfyd+dpTDmwC2UKQVRKUiHBNRNhVasgI+AebwCvBn0bLhVg4ewYDlG7ssE6CEhmGyE/XGjZAhgz5rpqXnkHPwzL4orxviwABgDfwOlLWheEWMgyQPxlzCnuvWI+RP0oV93RnJ9cl+ACDfRlGBKDB9pF37iSzbgbgJjKoiYWE6NP4CjJUPTf3WgI9a+ptJzShJkJtkwE4iwzG6FkYuIYECfI2ZQpnRYfvWZhSjcG3QoASCd4UuXQU1ZRHOwT+kPK9VLucRBaik2fxRqTC5Z96JW2QHRjwAeX6seLr1gS1Z/mmNOmgEDKjqGaB1SLwBzRZQuFXrYT92ghgSILGBeKOZr1U6NUGfi0EKJHgWcHw4kYfqLGR7RHwY+jXM1ISzdYrEq/mmzbZ3JFRNJh1HPgh+Js3N1VMZ3VNBq8BJ0jbxp2PCBZm/D+BrGnvtooApQphAvM27QzAz7aKRRJ3lzBfqGos+nkNOkfT7NiWE+dEhmTHoPcJ9KFS86xbTBVR2sT4vR047A4GO4g3kCEG9errdhwReYD3tYbQ4uVrXyvZOQFKTnxEPefhpiScftNnpk0ZFNIDilo/6DOsYcyNzvqdE6Dk4EIhhw39ZILqHU0BmtuWnlKun+8Kg50SwLJi7pK1prLx2uKRAyFC60par20eKr3s6LrB1NBEqH8AMGtbL8Nrs9dIIxQlVhetKFXnbR2g1wUvUtVQkKHf8uEmyN+wMu/Chheva1OqRIbzmspIbRn30hXQO02ADbX6AHljpo9mdgUneG88xV32X+cJsCFChESKb6WUISFHAXIR0v/SLE/3bR/j/wcA9HDCI5kS/mwAAAAASUVORK5CYII=);
+                }
+
+        
+
+        .rec.active {
+            -webkit-animation: flickerAnimation 1s infinite;
+        }
+
+        #recControl {
+            width: 60px;
+            text-decoration: underline;
+            color: #e60d2e;
+            cursor: pointer;
+        }
+
+        #recSw {
+            width: 80px;
+        }
+
+        .recInteractions {
+            position: fixed;
+            z-index: 222;
+            background: #ccc;
+            padding: 5px 0;
+            top: 76px;
+            right: 30px;
+            min-width: 220px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .interactionData {
+            margin: 5px 0;
+        }
+
+        .interactionCount {
+            font-weight: bold;
+            color: #e60d2e;
+        }
+
+
+
+        .fixed_headers {
+            width: 750px;
+            table-layout: fixed;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+            .fixed_headers th {
+                text-decoration: underline;
+            }
+
+            .fixed_headers th,
+            .fixed_headers td {
+                padding: 5px;
+                text-align: left;
+            }
+
+                .fixed_headers td:nth-child(1),
+                .fixed_headers th:nth-child(1) {
+                    min-width: 50px;
+                }
+
+                .fixed_headers td:nth-child(2),
+                .fixed_headers th:nth-child(2) {
+                    width: 100px;
+                }
+
+                .fixed_headers td:nth-child(3),
+                .fixed_headers th:nth-child(3) {
+                    min-width: 250px;
+                }
+
+                .fixed_headers td:nth-child(4),
+                .fixed_headers th:nth-child(4) {
+                    width: 100px;
+                }
+
+                .fixed_headers td:nth-child(5),
+                .fixed_headers th:nth-child(5) {
+                    min-width: 250px;
+                }
+
+
+
+            .fixed_headers thead {
+                background-color: #e60d2e;
+                color: #fdfdfd;
+            }
+
+                .fixed_headers thead tr {
+                    display: block;
+                    position: relative;
+                }
+
+            .fixed_headers tbody {
+                display: block;
+                overflow: auto;
+                width: 100%;
+                height: 300px;
+            }
+
+                .fixed_headers tbody tr:nth-child(even) {
+                    background-color: #efefef;
+                }
+    </style>
+</head>
+<body>
+    <h1>Recording</h1>
+    <div class="recFrame tr rec"></div>
+    <div class="recFrame tl rec"></div>
+    <div class="recFrame br rec"></div>
+    <div class="recFrame bl rec"></div>
+    <div class="recControls">
+        <span class="icon rec"></span>
+        <span id="recControl" onclick="toggleRecord()">Record</span>
+        <span id="recSw">00:00:00</span>
+    </div>
+    <div class="recInteractions">
+        <span class="interactionCount">3</span> Interations recorded <a onclick="toggleInteractions()" href="javascript::void" class="toggleInteraction">Show</a>
+        <div id="interactionData">
+            <table class="fixed_headers interactionTable">
+                <thead>
+                    <tr>
+                        <th>&nbsp;</th>
+                        <th>Time</th>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>New value</th>
+                    </tr>
+                </thead>
+                <tbody id="rcInteractionTableBody">
+                    <tr>
+                        <td><a href="#">delete</a></td>
+                        <td>00:01:000</td>
+                        <td>additional_approval_check</td>
+                        <td>checkbox</td>
+                        <td>true</td>
+
+                    </tr>
+                    <tr>
+                        <td><a href="#">delete</a></td>
+                        <td>00:03:450</td>
+                        <td>trip_destination</td>
+                        <td>text</td>
+                        <td>Brisbane, Albert Street</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div class="interactionControls">
+                <button>Generate Test Steps</button>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+
+
+<script>
+
+    function toggleInteractions() {
+        if ($("#interactionData").is(":visible")) {
+            $("#interactionData").hide();
+            $(".toggleInteraction").text("Show");
+        } else {
+            $("#interactionData").show();
+            $(".toggleInteraction").text("Hide");
+        }
+    }
+
+    var rec_start;
+    var rec_active = false;
+    var rec_timer;
+    var rec_started = false;
+    var rec_interval = 125;
+    var rec_elapsed = 0;
+
+    function toggleRecord() {
+
+        rec_active = !rec_active;
+
+        if (rec_active) {
+
+            $(".rec").addClass("active");
+            $("#recControl").text("Pause");
+            rec_timer = setInterval(onRecTimer, rec_interval);
+        } else {
+            $(".rec").removeClass("active");
+            $("#recControl").text("Record");
+            clearTimeout(rec_timer);
+        }
+    }
+
+    function onRecTimer() {
+        rec_elapsed += rec_interval;
+
+        $("#recSw").text(msToTime(rec_elapsed));
+    }
+
+    function msToTime(duration) {
+        var seconds = parseInt((duration / 1000) % 60), minutes = parseInt((duration / (1000 * 60)) % 60);
+
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        return minutes + ":" + seconds + "." + ("000" + duration % 1000).slice(-3);
+    }
+
+    var interactionsString =
+        "[{ 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'requesting_for_passport_name', 'data-initialValue': 'Mr Bob Dobalina', 'data-lastValue': 'Mr Bob Dobalinaads', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'requesting_for_passport_name', 'data-initialValue': 'Mr Bob Dobalina', 'data-lastValue': 'Mr Bob Dobalinaads', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'requesting_for_passport_name', 'oldValue': 'Mr Bob Dobalina', 'newValue': 'Mr Bob Dobalinaads', 'type': 'text', 'elapsed': 3625 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 111, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'additional_approval_check', 'data-initialValue': false, 'data-lastValue': true, 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 111, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'additional_approval_check', 'data-initialValue': false, 'data-lastValue': true, 'data-hasInteracted': true }, 'length': 1 }, 'name': 'additional_approval_check', 'oldValue': false, 'newValue': true, 'type': 'checkbox', 'elapsed': 34125 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'approvals_required', 'data-initialValue': '', 'data-lastValue': 'No', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'approvals_required', 'data-initialValue': '', 'data-lastValue': 'No', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'approvals_required', 'oldValue': '', 'newValue': 'Yes', 'type': 'radio', 'elapsed': 36000 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'approvals_required', 'data-initialValue': '', 'data-lastValue': 'No', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'approvals_required', 'data-initialValue': '', 'data-lastValue': 'No', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'approvals_required', 'oldValue': 'Yes', 'newValue': 'No', 'type': 'radio', 'elapsed': 38875 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'trip_type', 'data-initialValue': '-- None --', 'data-lastValue': 'Intrastate', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'trip_type', 'data-initialValue': '-- None --', 'data-lastValue': 'Intrastate', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'trip_type', 'oldValue': '-- None --', 'newValue': 'Intrastate', 'type': 'radio', 'elapsed': 40000 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'trip_segments', 'data-initialValue': '-- None --', 'data-lastValue': 'Return', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'trip_segments', 'data-initialValue': '-- None --', 'data-lastValue': 'Return', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'trip_segments', 'oldValue': '-- None --', 'newValue': 'Return', 'type': 'radio', 'elapsed': 40875 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseup': [{ 'type': 'mouseup', 'origType': 'mouseup', 'guid': 5, 'namespace': '' }], 'paste': [{ 'type': 'paste', 'origType': 'paste', 'guid': 5, 'namespace': '' }], 'keyup': [{ 'type': 'keyup', 'origType': 'keyup', 'guid': 5, 'namespace': '' }, { 'type': 'keyup', 'origType': 'keyup', 'guid': 13, 'namespace': 'autocomplete' }], 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 5, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'blur': [{ 'type': 'blur', 'origType': 'blur', 'data': null, 'guid': 6, 'namespace': '' }, { 'type': 'blur', 'origType': 'blur', 'guid': 11, 'namespace': 'autocomplete' }], 'keydown': [{ 'type': 'keydown', 'origType': 'keydown', 'guid': 12, 'namespace': 'autocomplete' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'jQuery223059396615259897662': { 'sc': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseout': [{ 'type': 'mouseout', 'origType': 'mouseleave', 'guid': 8, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mouseover': [{ 'type': 'mouseover', 'origType': 'mouseenter', 'guid': 9, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mousedown': [{ 'type': 'mousedown', 'origType': 'mousedown', 'guid': 10, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }] }, 'olddisplay': 'block' }, 'sizzle1516247819334': { 'undefined': { 'parentNode': [97050, 547, true] } } }, 'length': 1, 'maxHeight': 254, 'suggestionHeight': 41 } }, 'data-prettyName': 'trip_origin', 'data-initialValue': '', 'data-lastValue': 'Sydney / J.A. Douglas McCurdy Airport', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'mouseup': [{ 'type': 'mouseup', 'origType': 'mouseup', 'guid': 5, 'namespace': '' }], 'paste': [{ 'type': 'paste', 'origType': 'paste', 'guid': 5, 'namespace': '' }], 'keyup': [{ 'type': 'keyup', 'origType': 'keyup', 'guid': 5, 'namespace': '' }, { 'type': 'keyup', 'origType': 'keyup', 'guid': 13, 'namespace': 'autocomplete' }], 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 5, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'blur': [{ 'type': 'blur', 'origType': 'blur', 'data': null, 'guid': 6, 'namespace': '' }, { 'type': 'blur', 'origType': 'blur', 'guid': 11, 'namespace': 'autocomplete' }], 'keydown': [{ 'type': 'keydown', 'origType': 'keydown', 'guid': 12, 'namespace': 'autocomplete' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'jQuery223059396615259897662': { 'sc': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseout': [{ 'type': 'mouseout', 'origType': 'mouseleave', 'guid': 8, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mouseover': [{ 'type': 'mouseover', 'origType': 'mouseenter', 'guid': 9, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mousedown': [{ 'type': 'mousedown', 'origType': 'mousedown', 'guid': 10, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }] }, 'olddisplay': 'block' }, 'sizzle1516247819334': { 'undefined': { 'parentNode': [97050, 547, true] } } }, 'length': 1, 'maxHeight': 254, 'suggestionHeight': 41 } }, 'data-prettyName': 'trip_origin', 'data-initialValue': '', 'data-lastValue': 'Sydney / J.A. Douglas McCurdy Airport', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'trip_origin', 'oldValue': '', 'newValue': 'Sydney / J.A. Douglas McCurdy Airport', 'type': 'text', 'elapsed': 45625 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseup': [{ 'type': 'mouseup', 'origType': 'mouseup', 'guid': 14, 'namespace': '' }], 'paste': [{ 'type': 'paste', 'origType': 'paste', 'guid': 14, 'namespace': '' }], 'keyup': [{ 'type': 'keyup', 'origType': 'keyup', 'guid': 14, 'namespace': '' }, { 'type': 'keyup', 'origType': 'keyup', 'guid': 22, 'namespace': 'autocomplete' }], 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 14, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'blur': [{ 'type': 'blur', 'origType': 'blur', 'data': null, 'guid': 15, 'namespace': '' }, { 'type': 'blur', 'origType': 'blur', 'guid': 20, 'namespace': 'autocomplete' }], 'keydown': [{ 'type': 'keydown', 'origType': 'keydown', 'guid': 21, 'namespace': 'autocomplete' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'jQuery223059396615259897662': { 'sc': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseout': [{ 'type': 'mouseout', 'origType': 'mouseleave', 'guid': 17, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mouseover': [{ 'type': 'mouseover', 'origType': 'mouseenter', 'guid': 18, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mousedown': [{ 'type': 'mousedown', 'origType': 'mousedown', 'guid': 19, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }] }, 'olddisplay': 'block' }, 'sizzle1516247819334': { 'undefined': { 'parentNode': [101999, 547, true] } } }, 'length': 1, 'maxHeight': 254, 'suggestionHeight': 41 } }, 'data-prettyName': 'trip_destination', 'data-initialValue': '', 'data-lastValue': 'Brisbane, Albert Street', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'mouseup': [{ 'type': 'mouseup', 'origType': 'mouseup', 'guid': 14, 'namespace': '' }], 'paste': [{ 'type': 'paste', 'origType': 'paste', 'guid': 14, 'namespace': '' }], 'keyup': [{ 'type': 'keyup', 'origType': 'keyup', 'guid': 14, 'namespace': '' }, { 'type': 'keyup', 'origType': 'keyup', 'guid': 22, 'namespace': 'autocomplete' }], 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 14, 'namespace': '' }, { 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'blur': [{ 'type': 'blur', 'origType': 'blur', 'data': null, 'guid': 15, 'namespace': '' }, { 'type': 'blur', 'origType': 'blur', 'guid': 20, 'namespace': 'autocomplete' }], 'keydown': [{ 'type': 'keydown', 'origType': 'keydown', 'guid': 21, 'namespace': 'autocomplete' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'jQuery223059396615259897662': { 'sc': { '0': { 'jQuery223059396615259897661': { 'events': { 'mouseout': [{ 'type': 'mouseout', 'origType': 'mouseleave', 'guid': 17, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mouseover': [{ 'type': 'mouseover', 'origType': 'mouseenter', 'guid': 18, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }], 'mousedown': [{ 'type': 'mousedown', 'origType': 'mousedown', 'guid': 19, 'selector': '.autocomplete-suggestion', 'needsContext': false, 'namespace': '' }] }, 'olddisplay': 'block' }, 'sizzle1516247819334': { 'undefined': { 'parentNode': [101999, 547, true] } } }, 'length': 1, 'maxHeight': 254, 'suggestionHeight': 41 } }, 'data-prettyName': 'trip_destination', 'data-initialValue': '', 'data-lastValue': 'Brisbane, Albert Street', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'trip_destination', 'oldValue': '', 'newValue': 'Brisbane, Albert Street', 'type': 'text', 'elapsed': 50000 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'outward_date_time', 'data-initialValue': '', 'data-lastValue': '2018-01-17 03:59:54', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'outward_date_time', 'data-initialValue': '', 'data-lastValue': '2018-01-17 03:59:54', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'outward_date_time', 'oldValue': '', 'newValue': '2018-01-17 03:59:54', 'type': 'text', 'elapsed': 58500 }, { 'input': { '0': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'return_date_time', 'data-initialValue': '', 'data-lastValue': '2018-01-17 03:59:54', 'data-hasInteracted': true }, 'context': { 'jQuery223059396615259897661': { 'events': { 'change': [{ 'type': 'change', 'origType': 'change', 'guid': 201, 'namespace': '' }], 'focus': [{ 'type': 'focus', 'origType': 'focus', 'guid': 202, 'namespace': '' }] } }, 'data-prettyName': 'return_date_time', 'data-initialValue': '', 'data-lastValue': '2018-01-17 03:59:54', 'data-hasInteracted': true }, 'length': 1 }, 'name': 'return_date_time', 'oldValue': '', 'newValue': '2018-01-17 03:59:54', 'type': 'text', 'elapsed': 64250 }]";
+
+    var interactions = JSON.parse(interactionsString);
+
+    function displayInteractions() {
+
+   
+    }
+    
+</script>
+
+

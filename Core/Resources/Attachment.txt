@@ -1,0 +1,3 @@
+﻿Simple text attachment file
+
+============= EOF ===============

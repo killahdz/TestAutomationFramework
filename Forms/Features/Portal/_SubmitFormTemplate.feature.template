@@ -1,0 +1,84 @@
+﻿#Feature naming convention is:
+#   <Project>.Features.<Portal|Resolver>.<DescriptiveName>
+#Feature: Forms.Features.Portal.Resolver.SubmitFormTemplates
+#	Write a readable description of what the test is trying to achieve
+
+#
+# Portal forms use the g_form.nameMap array to identify controls
+# nameMap is comprised of two parts:
+#  -   realName:  this is the identifier on the input and is used by the test framework 
+#                 to locate the element in the DOM. eg: IO:e4e36144786b3100d3a24b31d38b3746
+#  - prettyName:  Human readable name. The test framework allows you to specify this identifier
+#                 when constructing tests. This makes it easier to recognize the field at a 
+#                 glance. eg for the 'Business justification' text area, the pretty name is 'business_justification'
+
+
+
+#specify the target environments using tags
+#@dev @uat @patch @video 
+#scenario name is a name specific for this test - this is the name visible in Visual Studio test window
+#Scenario: SubmitAFormScenario
+#	Given I am on the '<formName>' Form at '<relativeUrl>'
+#	Then I dismiss notifications
+#
+#	#====== Form Elements
+#	#textbox, textarea
+#	Then I enter 'textValue' in the 'inputPrettyName' text field
+#	#select list
+#	Then I select the 'optionText' option in the 'selectPrettyName' list 
+#	#checkbox
+#	Then I check the 'checkBoxPrettyName' check box field
+#	#radio
+#	Then I select the 'optionText' radio option from the 'radioPrettyName' field
+#	#datetime
+#	And I enter a date {1} days from now in the 'dateTimePrettyName' date time field
+#    #Lookup
+#    Then I enter 'textValue' in the 'lookupPrettyName' lookup text field
+#
+#	#====== Grids
+#	#clear existing rows (clicks the remove row button 3 times)
+#	And In the 'gridPrettyName' grid I clear the existing rows
+#	#add row data to the grid - clicks the add new button then enters data
+#	And In the 'gridPrettyName' grid I create a new row and enter the values 'Col1;Col2;Col3;....Coln'
+#
+#	# Grid Row Data Format
+#	# ====================
+#	#
+#	# Paddington Bear;071111111;041111111;cb:Personal
+#	# Column 1;Column 2;.....Column n
+#	# 
+#	# 1. All columns must be represented in the string
+#	# 2. Columns separated by ";". 
+#	# 3. Do not specify a trailing Separator. eg. col1;col2;col3; = broken
+#	# 4. Uneditable fields need to be represented 
+#	#    eg. column1Data;;;Column4Data;Column5Data  = skip columns 2 and 3
+#	# 5. Grids are operated on in context of the grid container. They tend to be named grid_something_somethingelse
+#	#
+#	# Prefixes
+#	# --------
+#	#
+#	# Prefixes can be specified at the column level to indicate the type of field
+#	# This tells the test framework to handle the column in a specific way. 
+#	# 
+#	# - cb: Combo box. Editable textbox with suggestions. Test framework will type the specified data
+#	#       into the textbox, wait for suggestions and select the first suggestion
+#	# - dt: Date Time input. Enters the specified datetime defined by n days from Now. eg. dt:1 = tomorrow
+#	# - ck: Check box. 1 = checked, 0 = unchecked
+#	# - li: List Item. Selects the item in the list
+#	# - No Prefix: handles the column like a standard text input
+#
+#
+#
+#	#====== Extras
+#	#fill a text area with random chars
+#	And I enter '100' random characters into the 'textAreaPrettyName' text field	
+#	#add a meaningless attachment
+#	Then I add an attachment
+#
+#	#===== Submission
+#	#form submission with console error checks
+#	When I click the form submit button and wait for the page to finish loading	
+#	#validate success
+#	Then I should see the title 'Thank you, your request has been submitted' 
+#	#post check for console errors	
+#	And I should observe no script errors on the page
