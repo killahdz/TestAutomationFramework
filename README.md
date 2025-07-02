@@ -2,7 +2,7 @@
 
 [![.NET](https://img.shields.io/badge/.NET-Automation-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/killahdz/TestAutomationFramework/ci.yml?branch=master)](../../actions)
-[![License](https://img.shields.io/github/license/killahdz/TestAutomationFramework)](LICENSE)
+[![License](https://img.shields.io/github/license/killahdz/TestAutomationFramework)](LICENSE.txt)
 
 > **A modular, extensible automation framework for .NET test automation covering a variety of scenarios including E2E, smoke, integration, and unit testing.**
 
