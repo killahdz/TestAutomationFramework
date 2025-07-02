@@ -105,7 +105,7 @@ Contributions are welcome! Please open issues or submit pull requests to help im
 
 ## 📝 License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the v2 View Only. See the [LICENSE](LICENSE.txt) file for details.
 
 ---
 
