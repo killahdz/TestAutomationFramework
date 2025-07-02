@@ -56,10 +56,10 @@ dotnet test UnitTesting/UnitTesting.csproj
 
 ## 🧩 Dependencies
 
-Project dependencies are managed via NuGet and defined in each `.csproj` file. Typical dependencies may include:
+Project dependencies are managed via NuGet and defined in each `.csproj` file. Typical dependencies include:
 
 - Selenium WebDriver ![selenium](https://img.shields.io/badge/Selenium-Automation-green?logo=selenium)
-- NUnit / xUnit ![nunit](https://img.shields.io/badge/NUnit-Testing-blue?logo=nunit)
+- NUnit ![nunit](https://img.shields.io/badge/NUnit-Testing-blue?logo=nunit)
 - Moq / FluentAssertions for mocking and assertions
 - SpecFlow for BDD
 
